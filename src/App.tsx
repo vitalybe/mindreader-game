@@ -1,17 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import {GuessingBar} from "./components/guessingBar.tsx";
+import { useState } from "react";
+import "./App.css";
+import { GuessingBar } from "./components/guessingBar.tsx";
+import styled from "styled-components";
+import { Score } from "./components/score.tsx";
+
+const View = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  
+`;
+
+const GuessingBarStyled = styled(GuessingBar)`
+  grid-row: span 2;
+`;
+
+const Button = styled.button`
+  border: 1px solid black;
+`;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
-    <>
-      <GuessingBar />
-    </>
-  )
+    <View>
+      <GuessingBarStyled />
+      <Button>Final answer - 5</Button>
+      <Score />
+    </View>
+  );
 }
 
-export default App
+export default App;
