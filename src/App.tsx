@@ -3,7 +3,9 @@ import "./App.css";
 import { GuessingBar } from "./components/guessingBar.tsx";
 import styled from "styled-components";
 import { Score } from "./components/score.tsx";
-import { Game } from "./domain/domain.ts";
+import { GameEntity } from "./domain/gameEntity.tsx";
+
+const SCORES = [4, 3, 2];
 
 const View = styled.div`
   display: grid;
@@ -17,7 +19,8 @@ const GuessingBarStyled = styled(GuessingBar)`
 `;
 
 const ButtonArea = styled.div`
-text-align: center`;
+  text-align: center;
+`;
 
 const Button = styled.button`
   border: 1px solid black;
@@ -25,34 +28,48 @@ const Button = styled.button`
 `;
 
 function App() {
-  const [game, setGame] = useState<Game>({
-    round: {
-      roundNumber: 0,
-      secret: 10,
-      words: ["Bad", "Good"],
-    },
-    teams: [
-      {
-        name: "🟩 Team Green",
-        score: 0,
+  const [game, setGame] = useState<GameEntity>(
+    new GameEntity({
+      round: {
+        roundNumber: 0,
+        secret: 10,
+        words: ["Bad", "Good"],
+        guess: undefined,
+        otherTeamGuess: undefined,
       },
-      {
-        name: "🟥 Team Red",
-        score: 0,
-      },
-    ],
-  });
+      teams: [
+        {
+          name: "🟩 Team Green",
+          score: 0,
+        },
+        {
+          name: "🟥 Team Red",
+          score: 0,
+        },
+      ],
+    })
+  );
 
-  const currentTeam = game.teams[game.round.roundNumber % game.teams.length];
+  const onNewRound = () => {
+    const newRound = game.newRound();
+    setGame(newRound);
+  }
+
+  const [guessedNumber, setGuessedNumber] = useState<number | undefined>();
+
   return (
     <View>
-      <GuessingBarStyled />
+      <GuessingBarStyled
+        guessedNumber={guessedNumber}
+        realNumber={game.round.secret}
+        startLabel={game.round.words[0]}
+        endLabel={game.round.words[1]}
+      />
       <ButtonArea>
-        <div>{currentTeam.name} turn!</div>
-        <Button>Final answer - 5</Button>
-        <div>
-          Team scored: <b>0</b>
-        </div>
+        <div>{game.currentTeam.name} turn!</div>
+        {guessedNumber !== undefined && (
+          <Button>Final answer - {guessedNumber}</Button>
+        )}
       </ButtonArea>
       <Score game={game} />
     </View>

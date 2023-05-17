@@ -54,6 +54,11 @@ const Hand = styled.div`
 `;
 
 interface Props {
+  startLabel: string;
+  endLabel: string;
+  realNumber: number | undefined
+  guessedNumber: number | undefined;
+
   className?: string;
 }
 
