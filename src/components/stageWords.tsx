@@ -10,6 +10,7 @@ const ButtonArea = styled.div`
 `;
 
 interface Props {
+  guessingTeam: string;
   onWords: (words: [string, string]) => void;
 
   className?: string;
@@ -208,7 +209,9 @@ export function StageWords(props: Props) {
         toHighlightWords: true,
       }}
     >
-      <Title>Choose words</Title>
+      <Title>
+        Team <b>{props.guessingTeam}</b> - Choose words!
+      </Title>
       <ButtonArea>
         <Button onClick={() => props.onWords(words)}>Accept ✅</Button>
         <Button onClick={() => setWords(words === words1 ? words2 : words1)}>

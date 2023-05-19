@@ -11,6 +11,7 @@ const ButtonArea = styled.div`
 `;
 
 interface Props {
+  guessingTeam: string;
   words: [string, string];
   onRandomSecret: (number: number) => void;
 
@@ -33,7 +34,9 @@ export function StageRandomSecret(props: Props) {
         endLabel: props.words[1],
       }}
     >
-      <Title>Think of a word!</Title>
+      <Title>
+        Team <b>{props.guessingTeam}</b> - Think of a word!
+      </Title>
       <ButtonArea>
         {randomSecret !== undefined && (
           <Button onClick={() => props.onRandomSecret(randomSecret)}>

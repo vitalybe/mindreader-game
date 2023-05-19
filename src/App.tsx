@@ -18,10 +18,11 @@ function App() {
 
   let stage = <div>N/A - Uknown state</div>;
   if (!game.round.words) {
-    stage = <StageWords onWords={(words) => game.setWords(words)} />;
+    stage = <StageWords guessingTeam={guessingTeam.name} onWords={(words) => game.setWords(words)} />;
   } else if (!game.round.secret) {
     stage = (
       <StageRandomSecret
+        guessingTeam={guessingTeam.name}
         words={game.round.words}
         onRandomSecret={game.setSecret}
       />
