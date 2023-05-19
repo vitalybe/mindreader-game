@@ -92,7 +92,7 @@ export function GuessingBar(props: Props) {
                     : undefined
                 }
               >
-                {i}
+                {i*5}
                 {i === props.guessedNumber && <Hand>👈</Hand>}
               </Number>
             </>
