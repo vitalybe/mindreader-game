@@ -7,6 +7,9 @@ import { StageGuessSecret } from "./components/stageGuessSecret.tsx";
 import { StageHigherLower } from "./components/stageHigherLower.tsx";
 import { StageScore } from "./components/stageScore.tsx";
 import background from "./assets/background.jpg";
+import { useEffect } from "react";
+import { Constants } from "./domain/constants.ts";
+import { StageNewGame } from "./components/stageNewGame.tsx";
 
 const View = styled.div``;
 
@@ -23,12 +26,25 @@ const Background = styled.img`
 function App() {
   const game = useStore((state) => state);
 
+  useEffect(() => {
+    if (game.teams.length) {
+      localStorage.setItem(Constants.LOCAL_STORAGE_KEY, JSON.stringify(game));
+    }
+  }, [game, game.round.roundNumber]);
+
   const guessingTeam = game.teams[game.round.roundNumber % game.teams.length];
   const otherTeam =
     game.teams[(game.round.roundNumber + 1) % game.teams.length];
 
   let stage = <div>N/A - Uknown state</div>;
-  if (!game.round.words) {
+  if (!game.teams.length) {
+    stage = (
+      <StageNewGame
+        onChosenMode={game.newGame}
+        onContinueGame={game.loadGame}
+      />
+    );
+  } else if (!game.round.words) {
     stage = (
       <StageWords
         guessingTeam={guessingTeam.name}
@@ -51,7 +67,7 @@ function App() {
         onGuess={game.setGuess}
       />
     );
-  } else if (!game.round.otherTeamGuess) {
+  } else if (!game.round.otherTeamGuess && otherTeam !== guessingTeam) {
     stage = (
       <StageHigherLower
         words={game.round.words}

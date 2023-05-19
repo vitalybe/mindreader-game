@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { GuessingBar, Props as GuessingBarProps } from "../guessingBar.tsx";
-import { Score } from "../score.tsx";
+import { GuessingBar, Props as GuessingBarProps } from "./guessingBar.tsx";
+import { Score } from "./score.tsx";
 import { useStore } from "../../domain/store.ts";
 
 const View = styled.div`

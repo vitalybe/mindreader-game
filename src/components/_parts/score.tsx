@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Team } from "../domain/store.ts";
+import { Team } from "../../domain/store.ts";
 
 const View = styled.div``;
 

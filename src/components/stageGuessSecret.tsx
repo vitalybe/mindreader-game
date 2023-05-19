@@ -35,7 +35,7 @@ export function StageGuessSecret(props: Props) {
       <ButtonArea>
         {guessedNumber !== undefined && (
           <Button onClick={() => props.onGuess(guessedNumber)}>
-            Final answer: <b>{guessedNumber}</b>
+            Final answer: <b>{guessedNumber*5}</b>
           </Button>
         )}
       </ButtonArea>

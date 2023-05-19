@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import * as _ from "lodash";
 
 export interface Team {
   name: string;
@@ -15,6 +16,11 @@ enum RoundStage {
 
 export type HigherLower = "higher" | "lower";
 
+export enum GameMode {
+  ONE_GROUP = "ONE_GROUP",
+  TWO_GROUPS = "TWO_GROUPS",
+}
+
 interface Round {
   roundNumber: number;
   roundStage: RoundStage;
@@ -25,13 +31,16 @@ interface Round {
   otherTeamGuess: HigherLower | undefined;
 }
 
-type State = {
+export type GameState = {
   teams: Team[];
   round: Round;
+  mode: GameMode | undefined;
 };
 
-type Action = {
+type GameActions = {
+  newGame: (mode: GameMode) => void;
   newRound: () => void;
+  loadGame: (gameState: GameState) => void;
 
   setWords: (words: [string, string]) => void;
   setSecret: (secret: number) => void;
@@ -39,6 +48,17 @@ type Action = {
   setOtherTeamGuess: (guess: HigherLower) => void;
   setScore: (teamName: string, score: number) => void;
 };
+
+const TEAMS_TEMPLATE: Team[] = [
+  {
+    name: "🟩 Green",
+    score: 0,
+  },
+  {
+    name: "🟥 Red",
+    score: 0,
+  },
+];
 
 const NEW_ROUND_TEMPLATE: Round = {
   roundNumber: 1,
@@ -50,18 +70,23 @@ const NEW_ROUND_TEMPLATE: Round = {
 };
 
 // Create your store, which includes both state and (optionally) actions
-export const useStore = create<State & Action>((set) => ({
-  teams: [
-    {
-      name: "🟩 Green",
-      score: 0,
-    },
-    {
-      name: "🟥 Red",
-      score: 0,
-    },
-  ],
+export const useStore = create<GameState & GameActions>((set) => ({
+  teams: [],
   round: { ...NEW_ROUND_TEMPLATE },
+  mode: undefined,
+  newGame: (mode) =>
+    set(() => {
+      let teams = _.cloneDeep(TEAMS_TEMPLATE);
+      if (mode === GameMode.ONE_GROUP) {
+        teams = [teams[0]];
+      }
+
+      return {
+        round: { ...NEW_ROUND_TEMPLATE },
+        teams: teams,
+      };
+    }),
+  loadGame: (gameState) => set(() => gameState),
   newRound: () => {
     set((state) => ({
       round: {
@@ -96,7 +121,7 @@ export const useStore = create<State & Action>((set) => ({
     })),
   setScore: (teamName, addedScore) =>
     set((state) => {
-      const teams: Team[] = [ ...state.teams ];
+      const teams: Team[] = [...state.teams];
 
       const teamIndex = teams.findIndex((team) => team.name === teamName);
       if (teamIndex === -1) {

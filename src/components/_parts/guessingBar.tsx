@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Constants } from "../domain/constants.ts";
+import { Constants } from "../../domain/constants.ts";
 
 const HIT_COLOR = "#00ffe2";
 const HIT_PLUS_1_COLOR = "#9bceff";
