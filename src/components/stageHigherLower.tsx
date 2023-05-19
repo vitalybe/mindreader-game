@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { useState } from "react";
 import { Button, Title } from "./_parts/smallComponents.tsx";
 import { StageContainer } from "./_parts/stageContainer.tsx";
 import { HigherLower } from "../domain/store.ts";
@@ -29,16 +28,15 @@ export function StageHigherLower(props: Props) {
         secretNumber: undefined,
         startLabel: props.words[0],
         endLabel: props.words[1],
-        onGuess: (number) => {
-          setGuessedNumber(number);
-        },
       }}
     >
       <Title>
         Team <b>{props.otherTeam}</b> - Guess!
       </Title>
       <ButtonArea>
-        <div>Is it higher or lower than <b>{props.guessedNumber}</b>?</div>
+        <div>
+          Is it higher or lower than <b>{props.guessedNumber}</b>?
+        </div>
         <Button onClick={() => props.onGuess("lower")}>
           Secret is Lower ⬆
         </Button>
