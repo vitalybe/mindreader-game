@@ -18,6 +18,7 @@ const Bar = styled.div`
   grid-auto-flow: row;
   border: 1px solid black;
   margin: 0.5rem 0;
+  background-color: white;
 `;
 
 const Label = styled.div<{ isHighlighted: boolean }>`
@@ -26,6 +27,7 @@ const Label = styled.div<{ isHighlighted: boolean }>`
   font-weight: bold;
   text-align: center;
   background-color: ${(props) => (props.isHighlighted ? "#ffeaae" : "white")};
+  border: ${(props) => (props.isHighlighted ? "1px solid red" : "1px solid black")};;
 `;
 
 const Number = styled.div<{ hitOffset: number | undefined }>`
@@ -53,9 +55,12 @@ const Number = styled.div<{ hitOffset: number | undefined }>`
 `;
 
 const Hand = styled.div`
+  color: #ffe336;
+  text-shadow: 0 0 3px #000000;
+  font-size: 2.6rem;
   position: absolute;
-  top: 0.6rem;
-  left: 2.3rem;
+  top: -0.9rem;
+  left: -2.3rem;
 `;
 
 export interface Props {
@@ -93,7 +98,7 @@ export function GuessingBar(props: Props) {
                 }
               >
                 {i*5}
-                {i === props.guessedNumber && <Hand>👈</Hand>}
+                {i === props.guessedNumber && <Hand>➡</Hand>}
               </Number>
             </>
           );

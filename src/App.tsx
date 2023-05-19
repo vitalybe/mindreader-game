@@ -6,8 +6,19 @@ import { StageRandomSecret } from "./components/stageRandomSecret.tsx";
 import { StageGuessSecret } from "./components/stageGuessSecret.tsx";
 import { StageHigherLower } from "./components/stageHigherLower.tsx";
 import { StageScore } from "./components/stageScore.tsx";
+import background from "./assets/background.jpg";
 
 const View = styled.div``;
+
+const Background = styled.img`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  z-index: -1;
+`;
 
 function App() {
   const game = useStore((state) => state);
@@ -18,7 +29,12 @@ function App() {
 
   let stage = <div>N/A - Uknown state</div>;
   if (!game.round.words) {
-    stage = <StageWords guessingTeam={guessingTeam.name} onWords={(words) => game.setWords(words)} />;
+    stage = (
+      <StageWords
+        guessingTeam={guessingTeam.name}
+        onWords={(words) => game.setWords(words)}
+      />
+    );
   } else if (!game.round.secret) {
     stage = (
       <StageRandomSecret
@@ -101,7 +117,12 @@ function App() {
   //   />
   // );
 
-  return <View>{stage}</View>;
+  return (
+    <View>
+      <Background src={background} />
+      {stage}
+    </View>
+  );
 }
 
 export default App;

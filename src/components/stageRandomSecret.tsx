@@ -40,7 +40,7 @@ export function StageRandomSecret(props: Props) {
       <ButtonArea>
         {randomSecret !== undefined && (
           <Button onClick={() => props.onRandomSecret(randomSecret)}>
-            Secret number: <b>{randomSecret}</b>
+            Secret number: <b>{randomSecret*5}</b>
           </Button>
         )}
       </ButtonArea>
