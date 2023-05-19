@@ -1,11 +1,13 @@
 import styled from "styled-components";
+import { Constants } from "../domain/constants.ts";
 
-const MAX_VALUE = 20;
-const HIT_COLOR = "#008aff";
-const HIT_PLUS_1_COLOR = "#5bb2ff";
-const HIT_PLUS_2_COLOR = "#a6d5ff";
+const HIT_COLOR = "#00ffe2";
+const HIT_PLUS_1_COLOR = "#9bceff";
+const HIT_PLUS_2_COLOR = "#d4eaff";
 
 const View = styled.div`
+  grid-row: span 2;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,15 +17,18 @@ const Bar = styled.div`
   display: grid;
   grid-auto-flow: row;
   border: 1px solid black;
+  margin: 0.5rem 0;
 `;
 
-const Label = styled.div`
-  padding: 0.5rem 0;
+const Label = styled.div<{ isHighlighted: boolean }>`
+  padding: 0 0.3rem;
+  margin: 0 0.5rem;
   font-weight: bold;
   text-align: center;
+  background-color: ${(props) => (props.isHighlighted ? "#ffeaae" : "white")};
 `;
 
-const Number = styled.div<{ hitOffset: number }>`
+const Number = styled.div<{ hitOffset: number | undefined }>`
   width: 1rem;
   height: 1rem;
   padding: 0.5rem;
@@ -53,39 +58,48 @@ const Hand = styled.div`
   left: 2.3rem;
 `;
 
-interface Props {
+export interface Props {
   startLabel: string;
   endLabel: string;
-  realNumber: number | undefined
+  secretNumber: number | undefined;
   guessedNumber: number | undefined;
+
+  toHighlightWords?: boolean;
+
+  onGuess?: (number: number) => void;
 
   className?: string;
 }
 
 export function GuessingBar(props: Props) {
-  const numbers = Array.from(Array(MAX_VALUE).keys()).map((i) => i + 1);
+  const numbers = Array.from(Array(Constants.MAX_GUESS_NUMBER).keys()).map(
+    (i) => i + 1
+  );
 
-  const startLabel = "Bad this is very very bad";
-  const endLabel = "Good";
-  const realNumber = 10;
-  const guessedNumber = 5;
-
+  const highlighted = props.toHighlightWords ?? false;
   return (
     <View className={props.className}>
-      <Label>{startLabel}</Label>
+      <Label isHighlighted={highlighted}>{props.startLabel}</Label>
       <Bar>
         {numbers.map((i) => {
           return (
             <>
-              <Number hitOffset={Math.abs(i - realNumber)}>
+              <Number
+                onClick={() => props.onGuess?.(i)}
+                hitOffset={
+                  props.secretNumber
+                    ? Math.abs(i - props.secretNumber)
+                    : undefined
+                }
+              >
                 {i}
-                {i === guessedNumber && <Hand>👈</Hand>}
+                {i === props.guessedNumber && <Hand>👈</Hand>}
               </Number>
             </>
           );
         })}
       </Bar>
-      <Label>{endLabel}</Label>
+      <Label isHighlighted={highlighted}>{props.endLabel}</Label>
     </View>
   );
 }

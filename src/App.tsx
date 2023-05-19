@@ -1,79 +1,106 @@
-import { useState } from "react";
 import "./App.css";
-import { GuessingBar } from "./components/guessingBar.tsx";
 import styled from "styled-components";
-import { Score } from "./components/score.tsx";
-import { GameEntity } from "./domain/gameEntity.tsx";
+import { useStore } from "./domain/store.ts";
+import { StageWords } from "./components/stageWords.tsx";
+import { StageRandomSecret } from "./components/stageRandomSecret.tsx";
+import { StageGuessSecret } from "./components/stageGuessSecret.tsx";
+import { StageHigherLower } from "./components/stageHigherLower.tsx";
+import { StageScore } from "./components/stageScore.tsx";
 
-const SCORES = [4, 3, 2];
-
-const View = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr auto;
-  align-items: center;
-`;
-
-const GuessingBarStyled = styled(GuessingBar)`
-  grid-row: span 2;
-`;
-
-const ButtonArea = styled.div`
-  text-align: center;
-`;
-
-const Button = styled.button`
-  border: 1px solid black;
-  margin: 1rem 0;
-`;
+const View = styled.div``;
 
 function App() {
-  const [game, setGame] = useState<GameEntity>(
-    new GameEntity({
-      round: {
-        roundNumber: 0,
-        secret: 10,
-        words: ["Bad", "Good"],
-        guess: undefined,
-        otherTeamGuess: undefined,
-      },
-      teams: [
-        {
-          name: "🟩 Team Green",
-          score: 0,
-        },
-        {
-          name: "🟥 Team Red",
-          score: 0,
-        },
-      ],
-    })
-  );
+  const game = useStore((state) => state);
 
-  const onNewRound = () => {
-    const newRound = game.newRound();
-    setGame(newRound);
+  const guessingTeam = game.teams[game.round.roundNumber % game.teams.length];
+  const otherTeam =
+    game.teams[(game.round.roundNumber + 1) % game.teams.length];
+
+  let stage = <div>N/A - Uknown state</div>;
+  if (!game.round.words) {
+    stage = <StageWords onWords={(words) => game.setWords(words)} />;
+  } else if (!game.round.secret) {
+    stage = (
+      <StageRandomSecret
+        words={game.round.words}
+        onRandomSecret={game.setSecret}
+      />
+    );
+  } else if (!game.round.guess) {
+    stage = (
+      <StageGuessSecret
+        playingTeam={guessingTeam.name}
+        words={game.round.words}
+        onGuess={game.setGuess}
+      />
+    );
+  } else if (!game.round.otherTeamGuess) {
+    stage = (
+      <StageHigherLower
+        words={game.round.words}
+        otherTeam={otherTeam.name}
+        guessedNumber={game.round.guess}
+        onGuess={game.setOtherTeamGuess}
+      />
+    );
+  } else {
+    stage = (
+      <StageScore
+        words={game.round.words}
+        guessingTeam={guessingTeam.name}
+        guessedNumber={game.round.guess}
+        otherTeam={otherTeam.name}
+        otherTeamGuess={game.round.otherTeamGuess}
+        secretNumber={game.round.secret}
+        onScore={(guessingTeamScore, otherTeamScore) => {
+          game.setScore(guessingTeam.name, guessingTeamScore);
+          game.setScore(otherTeam.name, otherTeamScore);
+          game.newRound();
+        }}
+      />
+    );
   }
 
-  const [guessedNumber, setGuessedNumber] = useState<number | undefined>();
+  // stage = <StageWords onWords={(words) => game.setWords(words)} />;
+  // stage = (
+  //   <StageRandomSecret
+  //     words={["bla1", "bla2"]}
+  //     onRandomSecret={game.setSecret}
+  //   />
+  // );
+  // stage = (
+  //   <StageGuessSecret
+  //     playingTeam={"aa"}
+  //     words={["bla1", "bla2"]}
+  //     onGuess={game.setGuess}
+  //   />
+  // );
+  //
+  // stage = (
+  //   <StageHigherLower
+  //     words={["bla1", "bla2"]}
+  //     otherTeam={"Green"}
+  //     guessedNumber={8}
+  //     onGuess={game.setOtherTeamGuess}
+  //   />
+  // );
+  //
+  // stage = (
+  //   <StageScore
+  //     words={["bla1", "bla2"]}
+  //     otherTeam={"Green"}
+  //     guessedNumber={8}
+  //     guessingTeam={"Red"}
+  //     secretNumber={5}
+  //     otherTeamGuess={"higher"}
+  //     onScore={(guessingTeamScore, otherTeamScore) => {
+  //       game.setScore(guessingTeam.name, guessingTeamScore);
+  //       game.setScore(otherTeam.name, otherTeamScore);
+  //     }}
+  //   />
+  // );
 
-  return (
-    <View>
-      <GuessingBarStyled
-        guessedNumber={guessedNumber}
-        realNumber={game.round.secret}
-        startLabel={game.round.words[0]}
-        endLabel={game.round.words[1]}
-      />
-      <ButtonArea>
-        <div>{game.currentTeam.name} turn!</div>
-        {guessedNumber !== undefined && (
-          <Button>Final answer - {guessedNumber}</Button>
-        )}
-      </ButtonArea>
-      <Score game={game} />
-    </View>
-  );
+  return <View>{stage}</View>;
 }
 
 export default App;
