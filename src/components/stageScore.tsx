@@ -32,7 +32,7 @@ interface Props {
   secretNumber: number;
 
   otherTeam: string;
-  otherTeamGuess: HigherLower;
+  otherTeamGuess: HigherLower | undefined;
 
   onScore: (guessingTeamScore: number, otherTeamScore: number) => void;
 
