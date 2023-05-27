@@ -24,16 +24,23 @@ interface Props {
 }
 
 export function StageContainer(props: Props) {
-  const [round, teams] = useStore((state) => [
-    state.round.roundNumber,
-    state.teams,
-  ]);
+  const round = useStore((state) => state.round.roundNumber);
+  const scores = useStore((state) => {
+    const teams = state.teams;
+    const team1 = teams[0].name;
+    const results = [{ name: team1, score: state.getTeamScore(team1) }];
+    const team2 = teams[1]?.name;
+    if (team2) {
+      results.push({ name: team2, score: state.getTeamScore(team2) });
+    }
+    return results;
+  });
 
   return (
     <View>
       <GuessingBarStyled {...props.guessingBarProps} />
       <Content>{props.children}</Content>
-      <Score roundNumber={round} teams={teams} />
+      <Score roundNumber={round} teamScores={scores} />
     </View>
   );
 }

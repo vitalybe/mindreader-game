@@ -24,6 +24,7 @@ export enum GameMode {
 interface Round {
   roundNumber: number;
   roundStage: RoundStage;
+  roundNumberWithGroupsSwitching: number;
 
   words: [string, string] | undefined;
   secret: number | undefined;
@@ -38,8 +39,11 @@ export type GameState = {
 };
 
 type GameActions = {
+  getCurrentTeam: (kind: "guessing" | "other") => Team;
+  getTeamScore: (teamName: string) => number;
+
   newGame: (mode: GameMode) => void;
-  newRound: () => void;
+  newRound: (changeRoles: boolean) => void;
   loadGame: (gameState: GameState) => void;
 
   setWords: (words: [string, string]) => void;
@@ -62,6 +66,9 @@ const TEAMS_TEMPLATE: Team[] = [
 
 const NEW_ROUND_TEMPLATE: Round = {
   roundNumber: 1,
+  // This is different from the round number because it only advances when the players switch roles (guessing vs. giving clues)
+  // This number isn't increased when losing team guesses correctly (+4)
+  roundNumberWithGroupsSwitching: 1,
   roundStage: RoundStage.WORDS,
   words: undefined,
   secret: undefined,
@@ -70,10 +77,27 @@ const NEW_ROUND_TEMPLATE: Round = {
 };
 
 // Create your store, which includes both state and (optionally) actions
-export const useStore = create<GameState & GameActions>((set) => ({
+export const useStore = create<GameState & GameActions>((set, get) => ({
   teams: [],
   round: { ...NEW_ROUND_TEMPLATE },
   mode: undefined,
+  getCurrentTeam: (kind: "guessing" | "other") => {
+    let index = get().round.roundNumberWithGroupsSwitching;
+    if (kind === "guessing") {
+      index++;
+    }
+    return get().teams[index % 2];
+  },
+  getTeamScore: (teamName: string | undefined) => {
+    if (teamName) {
+      const team = get().teams.find((team) => team.name === teamName);
+      if (team) {
+        return team.scores.reduce((a, b) => a + b, 0);
+      }
+    }
+
+    return 0;
+  },
   newGame: (mode) =>
     set(() => {
       let teams = _.cloneDeep(TEAMS_TEMPLATE);
@@ -87,13 +111,22 @@ export const useStore = create<GameState & GameActions>((set) => ({
       };
     }),
   loadGame: (gameState) => set(() => gameState),
-  newRound: () => {
-    set((state) => ({
-      round: {
-        ...NEW_ROUND_TEMPLATE,
-        roundNumber: state.round.roundNumber + 1,
-      },
-    }));
+  newRound: (switchRules: boolean) => {
+    set((state) => {
+      let roundNumberWithGroupsSwitching =
+        state.round.roundNumberWithGroupsSwitching;
+      if (switchRules && state.teams.length > 1) {
+        roundNumberWithGroupsSwitching++;
+      }
+
+      return {
+        round: {
+          ...NEW_ROUND_TEMPLATE,
+          roundNumber: state.round.roundNumber + 1,
+          roundNumberWithGroupsSwitching: roundNumberWithGroupsSwitching,
+        },
+      };
+    });
   },
   setWords: (words) =>
     set((state) => ({

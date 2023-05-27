@@ -35,7 +35,7 @@ export function StageHigherLower(props: Props) {
       </Title>
       <ButtonArea>
         <div>
-          Is it higher or lower than <b>{props.guessedNumber}</b>?
+          Is it higher or lower than <b>{props.guessedNumber*5}</b>?
         </div>
         <Button onClick={() => props.onGuess("lower")}>
           Secret is Lower ⬆

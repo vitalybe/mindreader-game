@@ -1,6 +1,6 @@
 import "./App.css";
 import styled from "styled-components";
-import {Team, useStore} from "./domain/store.ts";
+import { useStore } from "./domain/store.ts";
 import { StageWords } from "./components/stageWords.tsx";
 import { StageRandomSecret } from "./components/stageRandomSecret.tsx";
 import { StageGuessSecret } from "./components/stageGuessSecret.tsx";
@@ -25,18 +25,20 @@ const Background = styled.img`
 
 function App() {
   const game = useStore((state) => state);
+  const [guessingTeam, otherTeam] = useStore((state) => [
+    state.getCurrentTeam("guessing"),
+    state.getCurrentTeam("other"),
+  ]);
+  const [guessingTeamScore, otherTeamScore] = useStore((state) => [
+    state.getTeamScore(guessingTeam?.name),
+    state.getTeamScore(otherTeam?.name),
+  ]);
 
   useEffect(() => {
     if (game.teams.length) {
       localStorage.setItem(Constants.LOCAL_STORAGE_KEY, JSON.stringify(game));
     }
   }, [game, game.round.roundNumber]);
-
-  const guessingTeam = game.teams[game.round.roundNumber % game.teams.length];
-  let otherTeam: Team | undefined;
-  if (game.teams.length > 1) {
-    otherTeam = game.teams[(game.round.roundNumber + 1) % game.teams.length];
-  }
 
   let stage = <div>N/A - Uknown state</div>;
   if (!game.teams.length) {
@@ -71,33 +73,34 @@ function App() {
     );
   } else {
     if (otherTeam && game.round.otherTeamGuess === undefined) {
-        stage = (
-          <StageHigherLower
-            words={game.round.words}
-            otherTeam={otherTeam.name}
-            guessedNumber={game.round.guess}
-            onGuess={game.setOtherTeamGuess}
-          />
-        );
-      } else {
-        stage = (
-          <StageScore
-            words={game.round.words}
-            guessingTeam={guessingTeam.name}
-            guessedNumber={game.round.guess}
-            otherTeam={otherTeam?.name}
-            otherTeamGuess={game.round.otherTeamGuess}
-            secretNumber={game.round.secret}
-            onScore={(guessingTeamScore, otherTeamScore) => {
-              game.setRoundScore(guessingTeam.name, guessingTeamScore);
-              if(otherTeam) {
-                game.setRoundScore(otherTeam?.name, otherTeamScore);
-              }
-            }}
-            onNewRound={() => game.newRound()}
-          />
-        );
-      }
+      stage = (
+        <StageHigherLower
+          words={game.round.words}
+          otherTeam={otherTeam.name}
+          guessedNumber={game.round.guess}
+          onGuess={game.setOtherTeamGuess}
+        />
+      );
+    } else {
+      stage = (
+        <StageScore
+          words={game.round.words}
+          guessingTeamLoses={guessingTeamScore < otherTeamScore}
+          guessingTeam={guessingTeam.name}
+          guessedNumber={game.round.guess}
+          otherTeam={otherTeam?.name}
+          otherTeamGuess={game.round.otherTeamGuess}
+          secretNumber={game.round.secret}
+          onScore={(guessingTeamScore, otherTeamScore) => {
+            game.setRoundScore(guessingTeam.name, guessingTeamScore);
+            if (otherTeam) {
+              game.setRoundScore(otherTeam?.name, otherTeamScore);
+            }
+          }}
+          onNewRound={(toChangeRules) => game.newRound(toChangeRules)}
+        />
+      );
+    }
   }
 
   return (

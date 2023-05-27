@@ -32,6 +32,7 @@ const Score = styled.div`
 interface Props {
   words: [string, string];
 
+  guessingTeamLoses: boolean;
   guessingTeam: string;
   guessedNumber: number;
   secretNumber: number;
@@ -40,7 +41,7 @@ interface Props {
   otherTeamGuess: HigherLower | undefined;
 
   onScore: (guessingTeamScore: number, otherTeamScore: number) => void;
-  onNewRound: () => void;
+  onNewRound: (toChangeRoles: boolean) => void;
 
   className?: string;
 }
@@ -51,6 +52,13 @@ export function StageScore(props: Props) {
     props.secretNumber,
     props.otherTeamGuess
   );
+
+  let toChangeRoles = true;
+  const isLosingTeamOnComeback =
+    props.guessingTeamLoses && guessingTeamScore === MAX_GUESS_SCORE;
+  if (isLosingTeamOnComeback) {
+    toChangeRoles = false;
+  }
 
   useEffect(() => {
     props.onScore(guessingTeamScore, otherTeamScore);
@@ -77,7 +85,15 @@ export function StageScore(props: Props) {
             </>
           ) : null}
         </ScoreCard>
-        <Button onClick={() => props.onNewRound()}>New round</Button>
+        {isLosingTeamOnComeback ? (
+          <div>
+            Losing team {props.guessingTeam} is on a <b>COMEBACK</b> and gets a
+            new round
+          </div>
+        ) : null}
+        <Button onClick={() => props.onNewRound(toChangeRoles)}>
+          New round
+        </Button>
       </View>
     </StageContainer>
   );

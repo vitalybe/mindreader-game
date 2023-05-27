@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { Team } from "../../domain/store.ts";
 
 const View = styled.div``;
 
@@ -11,22 +10,20 @@ const Team = styled.div``;
 
 interface Props {
   roundNumber: number;
-  teams: Team[];
+  teamScores: { name: string; score: number }[];
 
   className?: string;
 }
 
 export function Score(props: Props) {
   const roundNumber = props.roundNumber;
-  const teams = props.teams;
 
   return (
     <View className={props.className}>
       <Title>Round - {roundNumber}</Title>
-      {teams.map((team) => (
+      {props.teamScores.map((team) => (
         <Team key={team.name}>
-          {team.name}:{" "}
-          <b>{team.scores.reduce((sum, current) => sum + current, 0)}</b>
+          {team.name}: <b>{team.score}</b>
         </Team>
       ))}
     </View>
