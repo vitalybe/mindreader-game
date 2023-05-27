@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { Button, Title } from "./_parts/smallComponents.tsx";
 import { StageContainer } from "./_parts/stageContainer.tsx";
 import { HigherLower } from "../domain/store.ts";
+import { useEffect } from "react";
 
 const MAX_GUESS_SCORE = 4;
 const MIN_GUESS_SCORE = 2;
@@ -20,6 +21,10 @@ const ScoreCard = styled.div`
   margin-bottom: 1rem;
 `;
 
+const TeamName = styled.div`
+  white-space: nowrap;
+`;
+
 const Score = styled.div`
   font-weight: bold;
 `;
@@ -31,33 +36,25 @@ interface Props {
   guessedNumber: number;
   secretNumber: number;
 
-  otherTeam: string;
+  otherTeam: string | undefined;
   otherTeamGuess: HigherLower | undefined;
 
   onScore: (guessingTeamScore: number, otherTeamScore: number) => void;
+  onNewRound: () => void;
 
   className?: string;
 }
 
 export function StageScore(props: Props) {
-  let guessingTeamScore =
-    MAX_GUESS_SCORE - Math.abs(props.guessedNumber - props.secretNumber);
-  if (guessingTeamScore < MIN_GUESS_SCORE) {
-    guessingTeamScore = 0;
-  }
+  const { guessingTeamScore, otherTeamScore } = calculateScore(
+    props.guessedNumber,
+    props.secretNumber,
+    props.otherTeamGuess
+  );
 
-  let otherTeamScore = 0;
-  if (
-    props.guessedNumber < props.secretNumber &&
-    props.otherTeamGuess === "higher"
-  ) {
-    otherTeamScore = OTHER_TEAM_SCORE;
-  } else if (
-    props.guessedNumber > props.secretNumber &&
-    props.otherTeamGuess === "lower"
-  ) {
-    otherTeamScore = OTHER_TEAM_SCORE;
-  }
+  useEffect(() => {
+    props.onScore(guessingTeamScore, otherTeamScore);
+  }, []);
 
   return (
     <StageContainer
@@ -71,17 +68,37 @@ export function StageScore(props: Props) {
       <Title>Score!</Title>
       <View>
         <ScoreCard>
-          <div>Team {props.guessingTeam}:</div>
+          <TeamName>Team {props.guessingTeam}:</TeamName>
           <Score>{guessingTeamScore}</Score>
-          <div>Team {props.otherTeam}:</div>
-          <Score>{otherTeamScore}</Score>
+          {props.otherTeam !== undefined ? (
+            <>
+              <TeamName>Team {props.otherTeam}:</TeamName>
+              <Score>{otherTeamScore}</Score>
+            </>
+          ) : null}
         </ScoreCard>
-        <Button
-          onClick={() => props.onScore(guessingTeamScore, otherTeamScore)}
-        >
-          New round
-        </Button>
+        <Button onClick={() => props.onNewRound()}>New round</Button>
       </View>
     </StageContainer>
   );
+}
+
+function calculateScore(
+  guessedNumber: number,
+  secretNumber: number,
+  otherTeamGuess: HigherLower | undefined
+) {
+  let guessingTeamScore =
+    MAX_GUESS_SCORE - Math.abs(guessedNumber - secretNumber);
+  if (guessingTeamScore < MIN_GUESS_SCORE) {
+    guessingTeamScore = 0;
+  }
+
+  let otherTeamScore = 0;
+  if (guessedNumber < secretNumber && otherTeamGuess === "higher") {
+    otherTeamScore = OTHER_TEAM_SCORE;
+  } else if (guessedNumber > secretNumber && otherTeamGuess === "lower") {
+    otherTeamScore = OTHER_TEAM_SCORE;
+  }
+  return { guessingTeamScore, otherTeamScore };
 }

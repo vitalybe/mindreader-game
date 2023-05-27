@@ -1,6 +1,6 @@
 import "./App.css";
 import styled from "styled-components";
-import { useStore } from "./domain/store.ts";
+import {Team, useStore} from "./domain/store.ts";
 import { StageWords } from "./components/stageWords.tsx";
 import { StageRandomSecret } from "./components/stageRandomSecret.tsx";
 import { StageGuessSecret } from "./components/stageGuessSecret.tsx";
@@ -33,8 +33,10 @@ function App() {
   }, [game, game.round.roundNumber]);
 
   const guessingTeam = game.teams[game.round.roundNumber % game.teams.length];
-  const otherTeam =
-    game.teams[(game.round.roundNumber + 1) % game.teams.length];
+  let otherTeam: Team | undefined;
+  if (game.teams.length > 1) {
+    otherTeam = game.teams[(game.round.roundNumber + 1) % game.teams.length];
+  }
 
   let stage = <div>N/A - Uknown state</div>;
   if (!game.teams.length) {
@@ -59,7 +61,7 @@ function App() {
         onRandomSecret={game.setSecret}
       />
     );
-  } else if (!game.round.guess) {
+  } else if (game.round.guess === undefined) {
     stage = (
       <StageGuessSecret
         playingTeam={guessingTeam.name}
@@ -67,71 +69,36 @@ function App() {
         onGuess={game.setGuess}
       />
     );
-  } else if (!game.round.otherTeamGuess && otherTeam !== guessingTeam) {
-    stage = (
-      <StageHigherLower
-        words={game.round.words}
-        otherTeam={otherTeam.name}
-        guessedNumber={game.round.guess}
-        onGuess={game.setOtherTeamGuess}
-      />
-    );
   } else {
-    stage = (
-      <StageScore
-        words={game.round.words}
-        guessingTeam={guessingTeam.name}
-        guessedNumber={game.round.guess}
-        otherTeam={otherTeam.name}
-        otherTeamGuess={game.round.otherTeamGuess}
-        secretNumber={game.round.secret}
-        onScore={(guessingTeamScore, otherTeamScore) => {
-          game.setScore(guessingTeam.name, guessingTeamScore);
-          game.setScore(otherTeam.name, otherTeamScore);
-          game.newRound();
-        }}
-      />
-    );
+    if (otherTeam && game.round.otherTeamGuess === undefined) {
+        stage = (
+          <StageHigherLower
+            words={game.round.words}
+            otherTeam={otherTeam.name}
+            guessedNumber={game.round.guess}
+            onGuess={game.setOtherTeamGuess}
+          />
+        );
+      } else {
+        stage = (
+          <StageScore
+            words={game.round.words}
+            guessingTeam={guessingTeam.name}
+            guessedNumber={game.round.guess}
+            otherTeam={otherTeam?.name}
+            otherTeamGuess={game.round.otherTeamGuess}
+            secretNumber={game.round.secret}
+            onScore={(guessingTeamScore, otherTeamScore) => {
+              game.setRoundScore(guessingTeam.name, guessingTeamScore);
+              if(otherTeam) {
+                game.setRoundScore(otherTeam?.name, otherTeamScore);
+              }
+            }}
+            onNewRound={() => game.newRound()}
+          />
+        );
+      }
   }
-
-  // stage = <StageWords onWords={(words) => game.setWords(words)} />;
-  // stage = (
-  //   <StageRandomSecret
-  //     words={["bla1", "bla2"]}
-  //     onRandomSecret={game.setSecret}
-  //   />
-  // );
-  // stage = (
-  //   <StageGuessSecret
-  //     playingTeam={"aa"}
-  //     words={["bla1", "bla2"]}
-  //     onGuess={game.setGuess}
-  //   />
-  // );
-  //
-  // stage = (
-  //   <StageHigherLower
-  //     words={["bla1", "bla2"]}
-  //     otherTeam={"Green"}
-  //     guessedNumber={8}
-  //     onGuess={game.setOtherTeamGuess}
-  //   />
-  // );
-  //
-  // stage = (
-  //   <StageScore
-  //     words={["bla1", "bla2"]}
-  //     otherTeam={"Green"}
-  //     guessedNumber={8}
-  //     guessingTeam={"Red"}
-  //     secretNumber={5}
-  //     otherTeamGuess={"higher"}
-  //     onScore={(guessingTeamScore, otherTeamScore) => {
-  //       game.setScore(guessingTeam.name, guessingTeamScore);
-  //       game.setScore(otherTeam.name, otherTeamScore);
-  //     }}
-  //   />
-  // );
 
   return (
     <View>

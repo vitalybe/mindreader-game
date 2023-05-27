@@ -21,17 +21,17 @@ const Bar = styled.div`
   background-color: white;
 `;
 
-const Label = styled.div<{ isHighlighted: boolean }>`
+const Label = styled.div<{ $isHighlighted: boolean }>`
   padding: 0 0.3rem;
   margin: 0 0.5rem;
   font-weight: bold;
   text-align: center;
-  background-color: ${(props) => (props.isHighlighted ? "#ffeaae" : "white")};
-  border: ${(props) => (props.isHighlighted ? "1px solid red" : "1px solid black")};;
+  background-color: ${(props) => (props.$isHighlighted ? "#ffeaae" : "white")};
+  border: ${(props) => (props.$isHighlighted ? "1px solid red" : "1px solid black")};;
 `;
 
-const Number = styled.div<{ hitOffset: number | undefined }>`
-  width: 1rem;
+const Number = styled.div<{ $hitOffset: number | undefined }>`
+  width: 2rem;
   height: 1rem;
   padding: 0.5rem;
   font-size: 0.8rem;
@@ -42,11 +42,11 @@ const Number = styled.div<{ hitOffset: number | undefined }>`
   }
 
   background-color: ${(props) => {
-    if (props.hitOffset === 0) {
+    if (props.$hitOffset === 0) {
       return HIT_COLOR;
-    } else if (props.hitOffset === 1) {
+    } else if (props.$hitOffset === 1) {
       return HIT_PLUS_1_COLOR;
-    } else if (props.hitOffset === 2) {
+    } else if (props.$hitOffset === 2) {
       return HIT_PLUS_2_COLOR;
     }
   }};
@@ -57,10 +57,11 @@ const Number = styled.div<{ hitOffset: number | undefined }>`
 const Hand = styled.div`
   color: #ffe336;
   text-shadow: 0 0 3px #000000;
-  font-size: 2.6rem;
+  font-size: 2.2rem;
   position: absolute;
-  top: -0.9rem;
-  left: -2.3rem;
+  top: -0.6rem;
+  left: -1.9rem;
+
 `;
 
 export interface Props {
@@ -77,34 +78,33 @@ export interface Props {
 }
 
 export function GuessingBar(props: Props) {
-  const numbers = Array.from(Array(Constants.MAX_GUESS_NUMBER).keys()).map(
-    (i) => i + 1
+  const numbers = Array.from(Array(Constants.MAX_GUESS_NUMBER+1).keys()).map(
+    (i) => i
   );
 
   const highlighted = props.toHighlightWords ?? false;
   return (
     <View className={props.className}>
-      <Label isHighlighted={highlighted}>{props.startLabel}</Label>
+      <Label $isHighlighted={highlighted}>{props.startLabel}</Label>
       <Bar>
         {numbers.map((i) => {
           return (
-            <>
-              <Number
-                onClick={() => props.onGuess?.(i)}
-                hitOffset={
-                  props.secretNumber
-                    ? Math.abs(i - props.secretNumber)
-                    : undefined
-                }
-              >
-                {i*5}
-                {i === props.guessedNumber && <Hand>➡</Hand>}
-              </Number>
-            </>
+            <Number
+              key={i}
+              onClick={() => props.onGuess?.(i)}
+              $hitOffset={
+                props.secretNumber
+                  ? Math.abs(i - props.secretNumber)
+                  : undefined
+              }
+            >
+              {i*5}
+              {i === props.guessedNumber && <Hand>➡</Hand>}
+            </Number>
           );
         })}
       </Bar>
-      <Label isHighlighted={highlighted}>{props.endLabel}</Label>
+      <Label $isHighlighted={highlighted}>{props.endLabel}</Label>
     </View>
   );
 }

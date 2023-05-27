@@ -25,7 +25,8 @@ export function Score(props: Props) {
       <Title>Round - {roundNumber}</Title>
       {teams.map((team) => (
         <Team key={team.name}>
-          {team.name}: <b>{team.score}</b>
+          {team.name}:{" "}
+          <b>{team.scores.reduce((sum, current) => sum + current, 0)}</b>
         </Team>
       ))}
     </View>

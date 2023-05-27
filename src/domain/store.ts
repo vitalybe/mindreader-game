@@ -3,7 +3,7 @@ import * as _ from "lodash";
 
 export interface Team {
   name: string;
-  score: number;
+  scores: number[];
 }
 
 enum RoundStage {
@@ -46,17 +46,17 @@ type GameActions = {
   setSecret: (secret: number) => void;
   setGuess: (guess: number) => void;
   setOtherTeamGuess: (guess: HigherLower) => void;
-  setScore: (teamName: string, score: number) => void;
+  setRoundScore: (teamName: string, score: number) => void;
 };
 
 const TEAMS_TEMPLATE: Team[] = [
   {
     name: "🟩 Green",
-    score: 0,
+    scores: [],
   },
   {
     name: "🟥 Red",
-    score: 0,
+    scores: [],
   },
 ];
 
@@ -119,7 +119,7 @@ export const useStore = create<GameState & GameActions>((set) => ({
         roundStage: RoundStage.RESULTS,
       },
     })),
-  setScore: (teamName, addedScore) =>
+  setRoundScore: (teamName, addedScore) =>
     set((state) => {
       const teams: Team[] = [...state.teams];
 
@@ -128,9 +128,18 @@ export const useStore = create<GameState & GameActions>((set) => ({
         throw new Error(`Team ${teamName} not found`);
       }
 
+      const team = teams[teamIndex];
+      const teamScores = team.scores;
+      if (teamScores.length < state.round.roundNumber) {
+        teamScores.push(0);
+      }
+
+      const newScores = [...teamScores];
+      newScores[state.round.roundNumber - 1] = addedScore;
+
       teams[teamIndex] = {
-        ...teams[teamIndex],
-        score: teams[teamIndex].score + addedScore,
+        ...team,
+        scores: newScores,
       };
 
       return {
