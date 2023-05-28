@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Constants } from "../../domain/constants.ts";
+import {darken} from "polished";
 
 const HIT_COLOR = "#00ffe2";
 const HIT_PLUS_1_COLOR = "#9bceff";
@@ -11,6 +12,11 @@ const View = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: black;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 `;
 
 const Bar = styled.div`
@@ -19,6 +25,10 @@ const Bar = styled.div`
   border: 1px solid black;
   margin: 0.5rem 0;
   background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: grey;
+  }
 `;
 
 const Label = styled.div<{ $isHighlighted: boolean }>`
@@ -27,7 +37,14 @@ const Label = styled.div<{ $isHighlighted: boolean }>`
   font-weight: bold;
   text-align: center;
   background-color: ${(props) => (props.$isHighlighted ? "#ffeaae" : "white")};
-  border: ${(props) => (props.$isHighlighted ? "1px solid red" : "1px solid black")};;
+  border: ${(props) =>
+    props.$isHighlighted ? "1px solid red" : "1px solid black"};
+
+  @media (prefers-color-scheme: dark) {
+    background-color: hsl(44, 19%, 46%);
+    border: ${(props) =>
+      props.$isHighlighted ? "1px solid #770000" : "1px solid black"};
+  }
 `;
 
 const Number = styled.div<{ $hitOffset: number | undefined }>`
@@ -42,12 +59,18 @@ const Number = styled.div<{ $hitOffset: number | undefined }>`
   }
 
   background-color: ${(props) => {
+    let darkenAmount = 0;
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      darkenAmount = 0.5;
+    }
+    
+    
     if (props.$hitOffset === 0) {
-      return HIT_COLOR;
+      return darken(darkenAmount, HIT_COLOR);
     } else if (props.$hitOffset === 1) {
-      return HIT_PLUS_1_COLOR;
+      return darken(darkenAmount, HIT_PLUS_1_COLOR);
     } else if (props.$hitOffset === 2) {
-      return HIT_PLUS_2_COLOR;
+      return darken(darkenAmount, HIT_PLUS_2_COLOR);
     }
   }};
 
@@ -61,7 +84,6 @@ const Hand = styled.div`
   position: absolute;
   top: -0.6rem;
   left: -1.9rem;
-
 `;
 
 export interface Props {
@@ -78,7 +100,7 @@ export interface Props {
 }
 
 export function GuessingBar(props: Props) {
-  const numbers = Array.from(Array(Constants.MAX_GUESS_NUMBER+1).keys()).map(
+  const numbers = Array.from(Array(Constants.MAX_GUESS_NUMBER + 1).keys()).map(
     (i) => i
   );
 
@@ -98,7 +120,7 @@ export function GuessingBar(props: Props) {
                   : undefined
               }
             >
-              {i*5}
+              {i * 5}
               {i === props.guessedNumber && <Hand>➡</Hand>}
             </Number>
           );

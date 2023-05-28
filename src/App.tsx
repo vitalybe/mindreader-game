@@ -18,7 +18,7 @@ const Background = styled.img`
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
   opacity: 0.2;
   z-index: -1;
 `;
