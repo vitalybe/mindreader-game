@@ -40,7 +40,7 @@ function App() {
     }
   }, [game, game.round.roundNumber]);
 
-  let stage = <div>N/A - Uknown state</div>;
+  let stage;
   if (!game.teams.length) {
     stage = (
       <StageNewGame
@@ -51,6 +51,7 @@ function App() {
   } else if (!game.round.words) {
     stage = (
       <StageWords
+        adultPromptsAllowed={game.adultPromptsAllowed}
         guessingTeam={guessingTeam.name}
         onWords={(words) => game.setWords(words)}
       />

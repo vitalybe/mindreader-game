@@ -17,8 +17,12 @@ const ButtonArea = styled.div`
   gap: 1rem;
 `;
 
+const CheckboxContainer = styled.div`
+  display: flex;
+`;
+
 interface Props {
-  onChosenMode: (gameMode: GameMode) => void;
+  onChosenMode: (gameMode: GameMode, adultPromptsAllowed: boolean) => void;
   onContinueGame: (game: GameState) => void;
 
   className?: string;
@@ -26,6 +30,7 @@ interface Props {
 
 export function StageNewGame(props: Props) {
   const [savedGame, setSavedGame] = useState<GameState>();
+  const [adultMode, setAdultMode] = useState(false);
 
   useEffect(() => {
     const gameString = localStorage.getItem(Constants.LOCAL_STORAGE_KEY);
@@ -36,21 +41,33 @@ export function StageNewGame(props: Props) {
 
   return (
     <View>
-      <Title>
-        Mindreader
-      </Title>
+      <Title>Mindreader</Title>
       <ButtonArea>
         <Button
           disabled={!savedGame}
-          onClick={() => savedGame && props.onContinueGame(savedGame)}>
+          onClick={() => savedGame && props.onContinueGame(savedGame)}
+        >
           Continue Game
         </Button>
-        <Button onClick={() => props.onChosenMode(GameMode.ONE_GROUP)}>
+        <Button
+          onClick={() => props.onChosenMode(GameMode.ONE_GROUP, adultMode)}
+        >
           1 Group
         </Button>
-        <Button onClick={() => props.onChosenMode(GameMode.TWO_GROUPS)}>
+        <Button
+          onClick={() => props.onChosenMode(GameMode.TWO_GROUPS, adultMode)}
+        >
           2 Groups
         </Button>
+        {/* Checkbox */}
+        <CheckboxContainer>
+          <input
+            id="adults-mode"
+            type="checkbox"
+            onChange={() => setAdultMode(!adultMode)}
+          />
+          <label htmlFor="adults-mode">Adults Mode</label>
+        </CheckboxContainer>
       </ButtonArea>
     </View>
   );

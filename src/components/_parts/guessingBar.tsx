@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Constants } from "../../domain/constants.ts";
-import {darken} from "polished";
+import { darken } from "polished";
 
 const HIT_COLOR = "#00ffe2";
 const HIT_PLUS_1_COLOR = "#9bceff";
@@ -60,11 +60,13 @@ const Number = styled.div<{ $hitOffset: number | undefined }>`
 
   background-color: ${(props) => {
     let darkenAmount = 0;
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
       darkenAmount = 0.5;
     }
-    
-    
+
     if (props.$hitOffset === 0) {
       return darken(darkenAmount, HIT_COLOR);
     } else if (props.$hitOffset === 1) {

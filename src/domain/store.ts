@@ -36,13 +36,14 @@ export type GameState = {
   teams: Team[];
   round: Round;
   mode: GameMode | undefined;
+  adultPromptsAllowed: boolean;
 };
 
 type GameActions = {
   getCurrentTeam: (kind: "guessing" | "other") => Team;
   getTeamScore: (teamName: string) => number;
 
-  newGame: (mode: GameMode) => void;
+  newGame: (mode: GameMode, adultPromptsAllowed: boolean) => void;
   newRound: (changeRoles: boolean) => void;
   loadGame: (gameState: GameState) => void;
 
@@ -81,6 +82,7 @@ export const useStore = create<GameState & GameActions>((set, get) => ({
   teams: [],
   round: { ...NEW_ROUND_TEMPLATE },
   mode: undefined,
+  adultPromptsAllowed: false,
   getCurrentTeam: (kind: "guessing" | "other") => {
     let index = get().round.roundNumberWithGroupsSwitching;
     if (kind === "guessing") {
@@ -98,7 +100,7 @@ export const useStore = create<GameState & GameActions>((set, get) => ({
 
     return 0;
   },
-  newGame: (mode) =>
+  newGame: (mode, adultPromptsAllowed: boolean) =>
     set(() => {
       let teams = _.cloneDeep(TEAMS_TEMPLATE);
       if (mode === GameMode.ONE_GROUP) {
@@ -108,6 +110,7 @@ export const useStore = create<GameState & GameActions>((set, get) => ({
       return {
         round: { ...NEW_ROUND_TEMPLATE },
         teams: teams,
+        adultPromptsAllowed: adultPromptsAllowed,
       };
     }),
   loadGame: (gameState) => set(() => gameState),
